@@ -1,9 +1,11 @@
 package com.elenai.elenaiaccessories.subscriber;
 
 import com.elenai.elenaiaccessories.ElenaiAccessories;
+import com.elenai.elenaiaccessories.event.DodgeEventListener;
 import com.elenai.elenaiaccessories.item.ItemSimple;
 
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +27,7 @@ public class CommonEventBusSubscriber {
 	
 	@SubscribeEvent
 	public static void onStaticCommonSetup(FMLCommonSetupEvent event) {
+		MinecraftForge.EVENT_BUS.register(new DodgeEventListener());
 	}
 
 

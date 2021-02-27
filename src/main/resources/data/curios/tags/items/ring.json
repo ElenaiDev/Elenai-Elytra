@@ -1,4 +1,6 @@
 {
-  "replace": false,
-  "values": ["forceful_ring:itemring"]
+	"replace": false,
+	"values": [
+		"elenaiaccessories:forceful_ring"
+	]
 }
