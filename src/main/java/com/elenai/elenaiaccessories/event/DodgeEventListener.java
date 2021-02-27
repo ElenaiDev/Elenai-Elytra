@@ -11,9 +11,9 @@ public class DodgeEventListener {
 	@SubscribeEvent
 	public void onDodge(DodgeEvent.ServerDodgeEvent event) {
 		
-		if(CuriosApi.getCuriosHelper().findEquippedCurio(CommonEventBusSubscriber.itemSimple, event.getPlayer())
+		if(CuriosApi.getCuriosHelper().findEquippedCurio(CommonEventBusSubscriber.itemRingForceful, event.getPlayer())
 		.isPresent()) {
-			event.setForce(event.getForce() + 10);
+			event.setForce((event.getForce()/100) * 125);
 		}
 		
 	}
