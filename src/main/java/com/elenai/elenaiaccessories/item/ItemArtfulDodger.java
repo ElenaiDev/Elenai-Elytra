@@ -6,9 +6,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.elenai.elenaiaccessories.subscriber.CommonEventBusSubscriber;
+import com.elenai.elenaidodge2.api.DodgeEvent;
+import com.elenai.elenaidodge2.api.FeathersHelper;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -21,27 +24,29 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 
-public class ItemRing extends Item {
-	
-	private int force;
+public class ItemArtfulDodger extends Item {
 
-	public ItemRing(int force) {
+	private int force = 10;
+	private int regen = 25;
+
+	public ItemArtfulDodger() {
 		super(new Item.Properties().maxStackSize(1).group(ItemGroup.MISC));
-		this.force = force;
 	}
-	
+
 	@Override
 	public void addInformation(ItemStack itemstack, World world, List<ITextComponent> list, ITooltipFlag flag) {
-	    super.addInformation(itemstack, world, list, flag);
-	    list.add(new StringTextComponent(""));
-	    list.add(new StringTextComponent(TextFormatting.GRAY + "When on Hand:"));
-	    list.add(new StringTextComponent(TextFormatting.BLUE + "+" + String.valueOf(force) + "% Dodge Force"));
+		super.addInformation(itemstack, world, list, flag);
+		list.add(new StringTextComponent(""));
+		list.add(new StringTextComponent(TextFormatting.GRAY + "When on Hand:"));
+		list.add(new StringTextComponent(TextFormatting.BLUE + "+" + String.valueOf(regen) + " Regeneration Speed"));
+		list.add(new StringTextComponent(TextFormatting.RED + "-" + String.valueOf(force) + "% Dodge Force"));
 	}
-	
+
 	@Override
 	public ICapabilityProvider initCapabilities(final ItemStack stack, CompoundNBT unused) {
 		ICurio curio = new ICurio() {
@@ -52,8 +57,24 @@ public class ItemRing extends Item {
 
 			@Override
 			public boolean canEquip(String identifier, LivingEntity entityLivingBase) {
-				return !CuriosApi.getCuriosHelper().findEquippedCurio(CommonEventBusSubscriber.itemRingForceful, entityLivingBase)
-						.isPresent();
+				return !CuriosApi.getCuriosHelper()
+						.findEquippedCurio(CommonEventBusSubscriber.artfulDodger, entityLivingBase).isPresent();
+			}
+
+			@Override
+			public void onEquip(String identifier, int index, LivingEntity livingEntity) {
+				if (livingEntity instanceof ServerPlayerEntity) {
+					FeathersHelper helper = new FeathersHelper();
+					helper.decreaseRegenModifier((ServerPlayerEntity) livingEntity, 25);
+				}
+			}
+
+			@Override
+			public void onUnequip(String identifier, int index, LivingEntity livingEntity) {
+				if (livingEntity instanceof ServerPlayerEntity) {
+					FeathersHelper helper = new FeathersHelper();
+					helper.increaseRegenModifier((ServerPlayerEntity) livingEntity, 25);
+				}
 			}
 		};
 
@@ -63,9 +84,19 @@ public class ItemRing extends Item {
 			@Nonnull
 			@Override
 			public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-
 				return CuriosCapability.ITEM.orEmpty(cap, curioOpt);
 			}
 		};
+		
+	}
+	
+	@SubscribeEvent
+	public void onDodge(DodgeEvent.ServerDodgeEvent event) {
+		
+		if(CuriosApi.getCuriosHelper().findEquippedCurio(CommonEventBusSubscriber.artfulDodger, event.getPlayer())
+		.isPresent()) {
+			event.setForce((event.getForce()/100) * 90);
+		}
+		
 	}
 }
