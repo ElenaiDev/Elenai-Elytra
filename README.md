@@ -1,2 +1,2 @@
-# Elenai-Accessories
-Baubles/Curios Addon For Elenai Dodge 2
+# Elenai-Elytra
+Elytra Addon For Elenai Dodge 2
